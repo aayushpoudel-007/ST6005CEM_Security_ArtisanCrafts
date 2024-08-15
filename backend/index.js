@@ -28,23 +28,15 @@ app.use(cookieParser());
 
 // Configure session middleware with in-memory store
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'default-secret-key', // Use session secret from environment or default
-  resave: false, // Avoid resaving sessions if unmodified
+  secret: process.env.SESSION_SECRET || 'default-secret-key',
+  resave: false, // Avoid saving sessions if unmodified
   saveUninitialized: false, // Avoid creating sessions until something is stored
   cookie: {
-    httpOnly: true, // Ensure cookies are not accessible via JavaScript
-    secure: process.env.NODE_ENV === 'production', // Set to true in production (HTTPS only)
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', // Set to true in production
     maxAge: 30 * 24 * 60 * 60 * 1000 // Session cookie expires in 30 days
   }
 }));
-
-// Middleware to log session ID on every request
-app.use((req, res, next) => {
-  if (req.sessionID) {
-    console.log('Session ID:', req.sessionID); // Log session ID to terminal
-  }
-  next();
-});
 
 // Routes
 app.use('/api/users', userRoutes);
@@ -62,10 +54,26 @@ app.get('/api/config/paypal', (req, res) => {
 const __dirname = path.resolve();
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 
-// Debugging route to check session ID
+// Debugging and session info routes
 app.get('/debug-session', (req, res) => {
-  console.log('Session ID:', req.sessionID); // Log session ID to terminal
+  // Log and respond with session ID
+  console.log('Session ID:', req.sessionID);
   res.send({ sessionID: req.sessionID });
+});
+
+app.get('/session-info', (req, res) => {
+  if (req.session.user) {
+    // Log and display session information
+    console.log('Session ID:', req.sessionID);
+    console.log('Session Data:', req.session);
+
+    res.status(200).json({
+      sessionID: req.sessionID,
+      sessionData: req.session
+    });
+  } else {
+    res.status(401).json({ message: 'No session data found' });
+  }
 });
 
 // Start the server
