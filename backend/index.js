@@ -16,6 +16,7 @@ import orderRoutes from './routes/orderRoutes.js';
 dotenv.config();
 const port = process.env.PORT || 5000;
 
+// Connect to MongoDB
 connectDB();
 
 const app = express();
@@ -25,16 +26,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-
-// Configure session middleware
+// Configure session middleware with in-memory store
 app.use(session({
   secret: process.env.SESSION_SECRET || 'default-secret-key',
-  resave: false,
-  saveUninitialized: false,
+  resave: false, // Avoid saving sessions if unmodified
+  saveUninitialized: false, // Avoid creating sessions until something is stored
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production', // true in production
-    maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    secure: process.env.NODE_ENV === 'production', // Set to true in production
+    maxAge: 30 * 24 * 60 * 60 * 1000 // Session cookie expires in 30 days
   }
 }));
 
