@@ -1,9 +1,10 @@
-// packages
-import path from 'path';
+// Import packages
 import express from 'express';
+import path from 'path';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
+import cors from 'cors'; // Import the CORS package
 
 // Utilities
 import connectDB from './config/db.js';
@@ -13,6 +14,7 @@ import productRoutes from './routes/productRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 
+// Load environment variables
 dotenv.config();
 const port = process.env.PORT || 5000;
 
@@ -21,16 +23,22 @@ connectDB();
 
 const app = express();
 
-// Middleware
+// CORS Configuration
+const corsOptions = {
+  origin: 'http://localhost:5173', // Replace with your frontend URL
+  credentials: true // Allow cookies to be sent and received
+};
+app.use(cors(corsOptions));
+
+// Middleware with in-memory store cookie management
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Configure session middleware with in-memory store
 app.use(session({
   secret: process.env.SESSION_SECRET || 'default-secret-key',
-  resave: false, // Avoid saving sessions if unmodified
-  saveUninitialized: false, // Avoid creating sessions until something is stored
+  resave: false,
+  saveUninitialized: false,
   cookie: {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production', // Set to true in production
@@ -55,15 +63,13 @@ const __dirname = path.resolve();
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 
 // Debugging and session info routes
-app.get('/debug-session', (req, res) => {
-  // Log and respond with session ID
+app.get('/api/debug-session', (req, res) => {
   console.log('Session ID:', req.sessionID);
   res.send({ sessionID: req.sessionID });
 });
 
-app.get('/session-info', (req, res) => {
+app.get('/api/session-info', (req, res) => {
   if (req.session.user) {
-    // Log and display session information
     console.log('Session ID:', req.sessionID);
     console.log('Session Data:', req.session);
 
