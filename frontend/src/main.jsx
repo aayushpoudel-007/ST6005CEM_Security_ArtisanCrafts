@@ -38,6 +38,7 @@ import AdminDashboard from "./pages/Admin/AdminDashboard.jsx";
 import UserOrder from "./pages/User/UserOrder.jsx";
 import AdminProductUpdate from "./pages/Admin/ProductUpdate";
 import ActivityLog from "./pages/Admin/ActivityLog.jsx";
+import SessionTable from "./pages/Admin/SessionTable.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -70,6 +71,7 @@ const router = createBrowserRouter(
         <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="adminproductupdate" element={<AdminProductUpdate></AdminProductUpdate>} />
         <Route path="activitylog" element={<ActivityLog></ActivityLog>} />
+        <Route path="sessiontable" element={<SessionTable></SessionTable>} />
       </Route>
     </Route>
   )
