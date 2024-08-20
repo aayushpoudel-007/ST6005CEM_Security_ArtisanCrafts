@@ -6,6 +6,12 @@ import { useLoginMutation } from "../../redux/api/usersApiSlice";
 import { setCredentials } from "../../redux/features/auth/authSlice";
 import { toast } from "react-toastify";
 import artisanCrafts from "../../components/artisancrafts.png"; // Import the new image
+import DOMPurify from 'dompurify';
+
+// Function to sanitize text input
+const sanitizeInput = (input) => {
+  return DOMPurify.sanitize(input);
+};
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -14,11 +20,8 @@ const Login = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const [login, { isLoading }] = useLoginMutation();
-
   const { userInfo } = useSelector((state) => state.auth);
-
   const { search } = useLocation();
   const sp = new URLSearchParams(search);
   const redirect = sp.get("redirect") || "/";
@@ -37,7 +40,11 @@ const Login = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
 
-    if (!validateEmail(email)) {
+    // Sanitize user inputs
+    const sanitizedEmail = sanitizeInput(email);
+    const sanitizedPassword = sanitizeInput(password);
+
+    if (!validateEmail(sanitizedEmail)) {
       setEmailError("Invalid email address");
       return;
     } else {
@@ -45,7 +52,7 @@ const Login = () => {
     }
 
     try {
-      const res = await login({ email, password }).unwrap();
+      const res = await login({ email: sanitizedEmail, password: sanitizedPassword }).unwrap();
       dispatch(setCredentials({ ...res }));
       navigate(redirect);
     } catch (err) {
