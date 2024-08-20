@@ -6,6 +6,12 @@ import { useRegisterMutation } from "../../redux/api/usersApiSlice";
 import { setCredentials } from "../../redux/features/auth/authSlice";
 import { toast } from "react-toastify";
 import artisanCrafts from "../../components/artisancrafts.png"; // Import the new image
+import DOMPurify from 'dompurify';
+
+// Function to sanitize text input
+const sanitizeInput = (input) => {
+  return DOMPurify.sanitize(input);
+};
 
 const Register = () => {
   const [username, setName] = useState("");
@@ -68,24 +74,29 @@ const Register = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
 
-    if (!validateEmail(email)) {
+    // Sanitize user inputs
+    const sanitizedUsername = sanitizeInput(username);
+    const sanitizedEmail = sanitizeInput(email);
+    const sanitizedPassword = sanitizeInput(password);
+
+    if (!validateEmail(sanitizedEmail)) {
       setEmailError("Invalid email address");
       return;
     } else {
       setEmailError("");
     }
 
-    const passwordError = validatePassword(password);
+    const passwordError = validatePassword(sanitizedPassword);
     if (passwordError) {
       setPasswordError(passwordError);
       return;
-    } else if (password !== confirmPassword) {
+    } else if (sanitizedPassword !== sanitizeInput(confirmPassword)) {
       toast.error("Passwords do not match");
       return;
     }
 
     try {
-      const res = await register({ username, email, password }).unwrap();
+      const res = await register({ username: sanitizedUsername, email: sanitizedEmail, password: sanitizedPassword }).unwrap();
       dispatch(setCredentials({ ...res }));
       navigate(redirect);
       toast.success("User successfully registered");
