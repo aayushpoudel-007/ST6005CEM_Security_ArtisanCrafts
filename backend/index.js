@@ -4,7 +4,9 @@ import path from 'path';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
-import cors from 'cors'; // Import the CORS package
+import cors from 'cors';
+import https from 'https'; // Import the HTTPS module
+import fs from 'fs'; // Import the file system module
 
 // Utilities
 import connectDB from './config/db.js';
@@ -82,5 +84,13 @@ app.get('/api/session-info', (req, res) => {
   }
 });
 
-// Start the server
-app.listen(port, () => console.log(`Server running on port: ${port}`));
+// SSL Certificates
+const sslOptions = {
+  key: fs.readFileSync(path.join(__dirname, 'server.key')), // Adjusted path
+  cert: fs.readFileSync(path.join(__dirname, 'server')) // Adjusted path
+};
+
+// Start the HTTPS server
+https.createServer(sslOptions, app).listen(port, () => {
+  console.log(`HTTPS Server running on port: ${port}`);
+});
