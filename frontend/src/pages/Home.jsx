@@ -22,7 +22,7 @@ return (
 <>
 <div className="flex justify-between items-center">
 <h1 className="ml-[20rem] mt-[10rem] text-[3rem]">
-Welcome to ArtisanAlley
+Welcome to Artisan Crafts
 </h1>
 
 <Link
